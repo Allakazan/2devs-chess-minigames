@@ -12,6 +12,14 @@ const colorSet = {
   black: 0x1e2324,
 };
 
+const BOARD_SIZE = 30;
+
+const BOARD_SPACES = 8;
+
+const ADDER = BOARD_SIZE / BOARD_SPACES;
+
+const OFFSET = BOARD_SIZE / 2 - ADDER / 2;
+
 export function ChessPiece({ piece, color, initialPosition }: BaseChessPieceProps) {
   //const [position, setPosition] = useState(initialPosition);
   //const [isCaptured, setIsCaptured] = useState(false);
@@ -20,7 +28,7 @@ export function ChessPiece({ piece, color, initialPosition }: BaseChessPieceProp
     <ChessPieceModel
       piece={piece}
       color={new Color().setHex(colorSet[color])}
-      //position={position}
+      position={[OFFSET - ADDER * initialPosition[0], 0, OFFSET - ADDER * initialPosition[1]]}
       //isCaptured={isCaptured}
       //onMove={(newPosition: [number, number]) => setPosition(newPosition)}
       //onCapture={() => setIsCaptured(true)}

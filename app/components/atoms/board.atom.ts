@@ -21,5 +21,15 @@ export type BoardAtom = {
 };
 
 export const boardAtom = atom<BoardAtom>({
-  board: Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => BoardPieces.EMPTY)),
+  //board: Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => BoardPieces.EMPTY)),
+  board: [
+    [4, 2, 0, 0, 0, 0, 1, 3],
+    [6, 2, 0, 0, 0, 0, 1, 5],
+    [8, 2, 0, 0, 0, 0, 1, 7],
+    [10, 2, 0, 0, 0, 0, 1, 9],
+    [12, 2, 0, 0, 0, 0, 1, 11],
+    [8, 2, 0, 0, 0, 0, 1, 7],
+    [6, 2, 0, 0, 0, 0, 1, 5],
+    [4, 2, 0, 0, 0, 0, 1, 3],
+  ],
 });

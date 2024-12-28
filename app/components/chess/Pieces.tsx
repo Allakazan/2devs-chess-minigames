@@ -25,6 +25,15 @@ export function Queen({ color, initialPosition }: PieceDefaultProps) {
   return <ChessPiece piece="QueenPiece" color={color} initialPosition={initialPosition} />;
 }
 
-export function Hook({ color, initialPosition }: PieceDefaultProps) {
+export function Rook({ color, initialPosition }: PieceDefaultProps) {
   return <ChessPiece piece="TowerPiece" color={color} initialPosition={initialPosition} />;
 }
+
+export const pieces = [
+  Pawn,
+  Rook,
+  Knight,
+  Bishop,
+  Queen,
+  King,
+];
