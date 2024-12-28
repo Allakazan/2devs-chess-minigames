@@ -3,10 +3,9 @@
 @tailwind utilities;
 
 html,
-body {
-  @apply bg-white dark:bg-gray-950;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+body,
+#root {
+  /* @apply bg-white dark:bg-gray-950; */
+  height: 100%;
+  margin: unset;
 }
