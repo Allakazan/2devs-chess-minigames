@@ -3,9 +3,19 @@
 varying vec3 v_normal;
 varying vec2 v_uv;
 
-uniform vec2 boxPositions[MAX_BOXES];
-uniform int boxPositionsLength;
-uniform vec3 paintColor;
+struct PaintBox {
+  vec2 pos;
+  int colorIndex;
+  bool enabled;
+};
+
+const int boxLength = 30;
+const int colorsLength = 3;
+
+uniform PaintBox boxes[boxLength];
+uniform vec3 colors[colorsLength];
+
+float masks[colorsLength];
 
 void main() { 
 
@@ -19,19 +29,39 @@ void main() {
   // Choose color based on the checker value
   vec3 color = checker == 0.0 ? vec3(0.0) : vec3(1.0);
 
-  float mask = 0.;
+  for (int i = 0; i < boxLength; i++) {
+    PaintBox box = boxes[i];
 
-  for (int i = 0; i < boxPositionsLength; i++){
-    vec2 box = boxPositions[i];
+    vec2 pos = box.pos;
+    int colorIndex = box.colorIndex;
+    bool enabled = box.enabled;
 
-    float ytest2 = step(1. - ((box.y - 1.) / scale), v_uv.y);
-    float ytest = step(1. - (box.y / scale), v_uv.y) - ytest2;
+    if (!enabled) {
+      continue;
+    }
 
-    float xtest2 = 1.0 - step((box.x - 1.) / scale, v_uv.x);  
-    float xtest = 1.0 - step(box.x / scale, v_uv.x) - xtest2;
+    float ytest2 = step(1. - ((pos.y - 1.) / scale), v_uv.y);
+    float ytest = step(1. - (pos.y / scale), v_uv.y) - ytest2;
 
-    mask += clamp((xtest + ytest) - 1., 0., 1.);
+    float xtest2 = 1.0 - step((pos.x - 1.) / scale, v_uv.x);  
+    float xtest = 1.0 - step(pos.x / scale, v_uv.x) - xtest2;
+
+    float mask = clamp((xtest + ytest) - 1., 0., 1.);
+
+    if (colorIndex == 0) {
+      masks[0] = masks[0] + mask;
+    } else if (colorIndex == 1) {
+      masks[1] = masks[1] + mask;
+    } else if (colorIndex == 2) {
+      masks[2] = masks[2] + mask;
+    }
   }
 
-  gl_FragColor = vec4(mix(color,paintColor, mask), 1.0);
+  vec3 finalColor = color;
+
+  for (int i = 0; i < colorsLength; i++) {
+    finalColor = mix(finalColor,colors[i], masks[i]);
+  }
+
+  gl_FragColor = vec4(finalColor, 1.0);
 }
