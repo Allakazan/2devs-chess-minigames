@@ -7,30 +7,30 @@ export interface PieceDefaultProps {
 }
 
 export function Bishop({ color, position }: PieceDefaultProps) {
-  return <ChessPiece piece="BishopPiece" color={color} position={position} />;
+  return <ChessPiece piece={BoardPieces.BISHOP} color={color} position={position} />;
 }
 
 export function Knight({ color, position }: PieceDefaultProps) {
-  return <ChessPiece piece="HorsePiece" color={color} position={position} />;
+  return <ChessPiece piece={BoardPieces.KNIGHT} color={color} position={position} />;
 }
 
 export function King({ color, position }: PieceDefaultProps) {
-  return <ChessPiece piece="KingPiece" color={color} position={position} />;
+  return <ChessPiece piece={BoardPieces.KING} color={color} position={position} />;
 }
 
 export function Pawn({ color, position }: PieceDefaultProps) {
-  return <ChessPiece piece="PawnPiece" color={color} position={position} />;
+  return <ChessPiece piece={BoardPieces.PAWN} color={color} position={position} />;
 }
 
 export function Queen({ color, position }: PieceDefaultProps) {
-  return <ChessPiece piece="QueenPiece" color={color} position={position} />;
+  return <ChessPiece piece={BoardPieces.QUEEN} color={color} position={position} />;
 }
 
 export function Rook({ color, position }: PieceDefaultProps) {
-  return <ChessPiece piece="TowerPiece" color={color} position={position} />;
+  return <ChessPiece piece={BoardPieces.ROOK} color={color} position={position} />;
 }
 
-export const pieces: { [key in BoardPieces]: (props: PieceDefaultProps) => JSX.Element } = {
+export const pieceToComponent: { [key in BoardPieces]: (props: PieceDefaultProps) => JSX.Element } = {
   [BoardPieces.PAWN]: Pawn,
   [BoardPieces.ROOK]: Rook,
   [BoardPieces.KNIGHT]: Knight,

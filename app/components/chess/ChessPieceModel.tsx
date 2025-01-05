@@ -18,22 +18,22 @@ export type GLTFResult = GLTF & {
 };
 
 export interface ChessPieceProps {
-  piece: keyof GLTFResult["nodes"];
+  modelName: keyof GLTFResult["nodes"];
   color: THREE.Color;
 }
 
 export function ChessPieceModel({
-  piece,
+  modelName,
   color,
   ...props
 }: ChessPieceProps & JSX.IntrinsicElements["group"]) {
   const { nodes } = useGLTF(
-    `${modelPath}/${piece.replace("Piece", "").toLowerCase()}.glb`
+    `${modelPath}/${modelName.replace("Piece", "").toLowerCase()}.glb`
   ) as GLTFResult;
 
   return (
     <group {...props} dispose={null}>
-      <mesh castShadow={true} geometry={nodes[piece].geometry}>
+      <mesh castShadow={true} geometry={nodes[modelName].geometry}>
         <meshPhysicalMaterial color={color} roughness={0.2} />
       </mesh>
     </group>

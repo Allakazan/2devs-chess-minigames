@@ -17,6 +17,8 @@ export type BoardPiece = {
 
 export type BoardAtom = {
   pieces: BoardPiece[];
+  selectedPiece: BoardPiece | null;
+  possibleMoves: [number, number][]
 };
 
-export const boardAtom = atom<BoardAtom>({ pieces: [] });
+export const boardAtom = atom<BoardAtom>({ pieces: [], selectedPiece: null, possibleMoves: [] });

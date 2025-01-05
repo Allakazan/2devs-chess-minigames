@@ -1,6 +1,6 @@
 import { degToRad } from "three/src/math/MathUtils.js";
 import { boardAtom, BoardPiece } from "../atoms/board.atom";
-import { pieces } from "./Pieces";
+import { pieceToComponent } from "./Pieces";
 import { useTexture } from "@react-three/drei";
 import { Color, IUniform, RepeatWrapping, Vector2 } from "three";
 
@@ -10,24 +10,29 @@ import { useEffect, useMemo } from "react";
 import { useAtom } from "jotai";
 
 export function ChessBoard() {
-  const textures = useTexture({
+  {/*const textures = useTexture({
     map: "/textures/chess-board.png",
     clearcoatRoughnessMap: "/textures/Fingerprints07_2K.png",
   });
   textures.clearcoatRoughnessMap.repeat.set(1.7, 1.7);
-  textures.clearcoatRoughnessMap.wrapS = textures.clearcoatRoughnessMap.wrapT = RepeatWrapping;
+  textures.clearcoatRoughnessMap.wrapS = textures.clearcoatRoughnessMap.wrapT = RepeatWrapping;*/}
 
-  /*const uniforms = useMemo<{ [key: string]: IUniform<any> }>(
-    () => ({
-      boxes: {
-        value: Array(30).fill({ pos: new Vector2(0, 0), colorIndex: 0, enabled: false }),
-      },
-      colors: { value: [new Color("#FFE486"), new Color("#FFE486"), new Color("#FFE486")] },
-    }),
-    []
-  );*/
+  const [{ pieces, possibleMoves }, setBoardData] = useAtom(boardAtom);
 
-  const [boardData, setBoardData] = useAtom(boardAtom);
+  const uniforms = useMemo<{ [key: string]: IUniform<any> }>(
+    () => {
+      return {
+        boxes: {
+          value: [
+            ...Array(30 - possibleMoves.length).fill({ pos: new Vector2(0, 0), colorIndex: 0, enabled: false }),
+            ...(possibleMoves.map(move => ({ pos: new Vector2(move[0], move[1]), colorIndex: 0, enabled: true })))
+          ],
+        },
+        colors: { value: [new Color("#FFE486"), new Color("#FFE486"), new Color("#FFE486")] },
+      }
+    },
+    [possibleMoves]
+  );
 
   const boardInitialize = () => {
     const board = [
@@ -66,8 +71,8 @@ export function ChessBoard() {
 
   return (
     <>
-      {boardData.pieces.map(({ piece, color, position }) => {
-        const PieceElement = pieces[piece];
+      {pieces.map(({ piece, color, position }) => {
+        const PieceElement = pieceToComponent[piece];
 
         return (
           <PieceElement key={`${position[0]}-${position[1]}`} color={color} position={position} />
@@ -75,15 +80,15 @@ export function ChessBoard() {
       })}
       <mesh position={[0, 0, 0]} rotation={[degToRad(-90), 0, degToRad(-90)]}>
         <planeGeometry args={[30, 30, 1]} />
-        {/*<shaderMaterial vertexShader={defaultVert} fragmentShader={boardFrag} uniforms={uniforms} />*/}
-        <meshPhysicalMaterial
+        <shaderMaterial vertexShader={defaultVert} fragmentShader={boardFrag} uniforms={uniforms} needsUpdate={true} />
+        {/*<meshPhysicalMaterial
           {...textures}
           ior={1.46}
           roughness={0.8}
           clearcoat={0.1}
           clearcoatRoughness={1}
           metalness={0.1}
-        />
+        />*/}
       </mesh>
     </>
   );
