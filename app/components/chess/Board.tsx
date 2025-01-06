@@ -2,11 +2,11 @@ import { degToRad } from "three/src/math/MathUtils.js";
 import { boardAtom, BoardPiece } from "../atoms/board.atom";
 import { pieceToComponent } from "./Pieces";
 import { useTexture } from "@react-three/drei";
-import { Color, IUniform, RepeatWrapping, Vector2 } from "three";
+import { Color, IUniform, RepeatWrapping, ShaderMaterial, Vector2 } from "three";
 
 import boardFrag from "~/shaders/board.frag";
 import defaultVert from "~/shaders/default.vert";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useAtom } from "jotai";
 
 export function ChessBoard() {
@@ -17,21 +17,35 @@ export function ChessBoard() {
   textures.clearcoatRoughnessMap.repeat.set(1.7, 1.7);
   textures.clearcoatRoughnessMap.wrapS = textures.clearcoatRoughnessMap.wrapT = RepeatWrapping;*/}
 
+  const shaderMatRef = useRef<ShaderMaterial>(null);
   const [{ pieces, possibleMoves }, setBoardData] = useAtom(boardAtom);
+
+  const formatShaderCoords = ([y, x]: [number, number]) => {
+    return new Vector2(9 - (x + 1), y + 1);
+  }
+  
+  useEffect(() => {
+    if (!shaderMatRef.current) return;
+
+    shaderMatRef.current.uniforms.boxes = {
+      value: [
+        // 30 is the maximum box array length
+        ...Array(30 - possibleMoves.length).fill({ pos: new Vector2(0, 0), colorIndex: 0, enabled: false }),
+        ...(possibleMoves.map(move => ({ pos: formatShaderCoords(move), colorIndex: 0, enabled: true })))
+      ]
+    }
+  }, [possibleMoves])
 
   const uniforms = useMemo<{ [key: string]: IUniform<any> }>(
     () => {
       return {
         boxes: {
-          value: [
-            ...Array(30 - possibleMoves.length).fill({ pos: new Vector2(0, 0), colorIndex: 0, enabled: false }),
-            ...(possibleMoves.map(move => ({ pos: new Vector2(move[0], move[1]), colorIndex: 0, enabled: true })))
-          ],
+          value: Array(30).fill({ pos: new Vector2(0, 0), colorIndex: 0, enabled: false }),
         },
         colors: { value: [new Color("#FFE486"), new Color("#FFE486"), new Color("#FFE486")] },
       }
     },
-    [possibleMoves]
+    []
   );
 
   const boardInitialize = () => {
@@ -80,7 +94,7 @@ export function ChessBoard() {
       })}
       <mesh position={[0, 0, 0]} rotation={[degToRad(-90), 0, degToRad(-90)]}>
         <planeGeometry args={[30, 30, 1]} />
-        <shaderMaterial vertexShader={defaultVert} fragmentShader={boardFrag} uniforms={uniforms} needsUpdate={true} />
+        <shaderMaterial ref={shaderMatRef} vertexShader={defaultVert} fragmentShader={boardFrag} uniforms={uniforms} needsUpdate={true} />
         {/*<meshPhysicalMaterial
           {...textures}
           ior={1.46}

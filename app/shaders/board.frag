@@ -1,4 +1,5 @@
 #define MAX_BOXES 30 // Maximum number of boxes
+#define OFFSET 0.2
 
 varying vec3 v_normal;
 varying vec2 v_uv;
@@ -40,11 +41,11 @@ void main() {
       continue;
     }
 
-    float ytest2 = step(1. - ((pos.y - 1.) / scale), v_uv.y);
-    float ytest = step(1. - (pos.y / scale), v_uv.y) - ytest2;
+    float ytest2 = step(1. - ((pos.y - 1. + OFFSET) / scale), v_uv.y);
+    float ytest = step(1. - ((pos.y - OFFSET) / scale), v_uv.y) - ytest2;
 
-    float xtest2 = 1.0 - step((pos.x - 1.) / scale, v_uv.x);  
-    float xtest = 1.0 - step(pos.x / scale, v_uv.x) - xtest2;
+    float xtest2 = 1.0 - step((pos.x - 1. + OFFSET) / scale, v_uv.x);  
+    float xtest = 1.0 - step((pos.x - OFFSET) / scale, v_uv.x) - xtest2;
 
     float mask = clamp((xtest + ytest) - 1., 0., 1.);
 

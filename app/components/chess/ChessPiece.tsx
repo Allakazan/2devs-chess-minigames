@@ -68,9 +68,10 @@ export function ChessPiece({ piece, color, position }: BaseChessPieceProps) {
         position,
       },
       possibleMoves: [
-        [position[0], position[1] + 1],
-        [position[0] + 1, position[1] + 1],
-        [position[0] - 1, position[1] + 1],
+        [position[0], position[1]],
+        [position[0], position[1] + (color == 'black' ? -1: 1)],
+        [position[0] + 1, position[1] + (color == 'black' ? -1: 1)],
+        [position[0] - 1, position[1] + (color == 'black' ? -1: 1)],
       ]
     }))
   }
