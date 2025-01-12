@@ -1,0 +1,11 @@
+node_modules
+
+/.cache
+/build
+.env
+
+server/socket/Cargo.lock
+server/socket/Cargo.toml
+/server/socket/target
+server/socket/main.exe
+server/socket/main.pdb
