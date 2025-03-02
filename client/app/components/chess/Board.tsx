@@ -1,5 +1,5 @@
 import { degToRad } from "three/src/math/MathUtils.js";
-import { boardAtom, BoardPiece } from "../atoms/board.atom";
+import { boardAtom, BoardPiece, piecePositions } from "../atoms/board.atom";
 import { pieceToComponent } from "./Pieces";
 import { useTexture } from "@react-three/drei";
 import {
@@ -27,7 +27,9 @@ export function ChessBoard() {
   }
 
   const shaderMatRef = useRef<ShaderMaterial>(null);
-  const [{ pieces, possibleMoves }, setBoardData] = useAtom(boardAtom);
+  const [{ pieces, selectedPiece, possibleMoves }, setBoardData] =
+    useAtom(boardAtom);
+  const [positions, setPositions] = useAtom(piecePositions);
 
   const formatShaderCoords = ([y, x]: [number, number]) => {
     return new Vector2(9 - (x + 1), y + 1);
@@ -73,6 +75,7 @@ export function ChessBoard() {
   }, []);
 
   const boardInitialize = () => {
+    //const board = [[1]];
     const board = [
       [1, 0, -1, -1, -1, -1, 0, 1],
       [2, 0, -1, -1, -1, -1, 0, 2],
@@ -84,49 +87,39 @@ export function ChessBoard() {
       [1, 0, -1, -1, -1, -1, 0, 1],
     ];
 
+    const newPieces = board.flatMap((row, y) =>
+      row
+        .map((piece, x) => {
+          if (piece < 0) return null;
+
+          return {
+            piece,
+            color: x <= 3 ? "white" : "black",
+            position: [y, x],
+          };
+        })
+        .filter((item) => item !== null)
+    ) as ({ position: [x: number, y: number] } & BoardPiece)[];
+
     setBoardData((prev) => ({
       ...prev,
-      pieces: board.flatMap((row, y) =>
-        row
-          .map((piece, x) => {
-            if (piece < 0) return null;
-
-            return {
-              piece,
-              color: x <= 3 ? "white" : "black",
-              position: [y, x],
-            };
-          })
-          .filter((item) => item !== null)
-      ) as BoardPiece[],
+      pieces: newPieces.map((p, i) => ({ ...p, id: i })),
     }));
+    setPositions(newPieces.map(({ position }) => position));
   };
 
   const movePiece = (position: [number, number]) => {
     console.log("Moving a piece");
 
-    setBoardData((prev) => {
-      const currentPiece = prev.pieces.findIndex(
-        (piece) => JSON.stringify(piece) === JSON.stringify(prev.selectedPiece)
-      );
-
-      return {
-        ...prev,
-        pieces:
-          currentPiece === -1
-            ? prev.pieces
-            : [
-                ...prev.pieces.slice(0, currentPiece),
-                {
-                  ...prev.pieces[currentPiece],
-                  position,
-                },
-                ...prev.pieces.slice(currentPiece + 1),
-              ],
-        possibleMoves: [],
-        selectedPiece: null,
-      };
-    });
+    setPositions((prev) =>
+      !selectedPiece
+        ? prev
+        : [
+            ...prev.slice(0, selectedPiece.id),
+            position,
+            ...prev.slice(selectedPiece.id + 1),
+          ]
+    );
   };
 
   useEffect(() => {
@@ -136,14 +129,15 @@ export function ChessBoard() {
 
   return (
     <>
-      {pieces.map(({ piece, color, position }) => {
+      {pieces.map(({ piece, color }, idx) => {
         const PieceElement = pieceToComponent[piece];
 
         return (
           <PieceElement
-            key={`${position[0]}-${position[1]}`}
+            key={idx} //`${positions[idx][0]}-${positions[idx][1]}`
+            id={idx}
             color={color}
-            position={position}
+            position={positions[idx]}
           />
         );
       })}

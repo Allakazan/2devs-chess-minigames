@@ -2,6 +2,8 @@ import React from "react";
 import * as THREE from "three";
 import { useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
+import { motion } from "framer-motion-3d";
+import { MotionProps } from "motion/react";
 
 const modelPath = "/models/chess_pieces";
 
@@ -17,25 +19,36 @@ export type GLTFResult = GLTF & {
   materials: { [key: string]: THREE.Material };
 };
 
-export interface ChessPieceProps {
+interface CustomMotionProps extends MotionProps {
   modelName: keyof GLTFResult["nodes"];
   color: THREE.Color;
+  x: number;
+  z: number;
+  rotateY: number;
 }
 
 export function ChessPieceModel({
   modelName,
   color,
+  x,
+  z,
+  rotateY,
   ...props
-}: ChessPieceProps & JSX.IntrinsicElements["group"]) {
+}: CustomMotionProps) {
   const { nodes } = useGLTF(
     `${modelPath}/${modelName.replace("Piece", "").toLowerCase()}.glb`
   ) as GLTFResult;
 
   return (
-    <group {...props} dispose={null}>
-      <mesh castShadow={true} geometry={nodes[modelName].geometry}>
-        <meshPhysicalMaterial color={color} roughness={0.2} />
-      </mesh>
-    </group>
+    <motion.mesh
+      {...props}
+      initial={{ x, z, rotateY }}
+      animate={{ x, z, rotateY }}
+      transition={{ ease: "easeOut", duration: 0.5 }}
+      castShadow={true}
+      geometry={nodes[modelName].geometry}
+    >
+      <meshPhysicalMaterial color={color} roughness={0.2} />
+    </motion.mesh>
   );
 }

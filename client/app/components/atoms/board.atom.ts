@@ -10,15 +10,22 @@ export enum BoardPieces {
 }
 
 export type BoardPiece = {
+  id: number;
   piece: BoardPieces;
   color: "white" | "black";
-  position: [number, number];
+  //position: [number, number];
 };
 
 export type BoardAtom = {
   pieces: BoardPiece[];
   selectedPiece: BoardPiece | null;
-  possibleMoves: [number, number][]
+  possibleMoves: [number, number][];
 };
 
-export const boardAtom = atom<BoardAtom>({ pieces: [], selectedPiece: null, possibleMoves: [] });
+export const boardAtom = atom<BoardAtom>({
+  pieces: [],
+  selectedPiece: null,
+  possibleMoves: [],
+});
+
+export const piecePositions = atom<[x: number, y: number][]>([]);

@@ -39,7 +39,7 @@ export function BoardPosition({ move, onPositionClick }: BoardPositionProps) {
     >
       <boxGeometry args={[2.5, 0.5, 2.5]} />
       <meshBasicMaterial
-        visible={true}
+        visible={false}
         wireframe={true}
         color={hovered ? "red" : "blue"}
       />

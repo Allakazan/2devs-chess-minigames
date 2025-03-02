@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { useCursor } from "@react-three/drei";
 import { useAtom } from "jotai";
 import { motion } from "framer-motion-3d";
-import { boardAtom, BoardPieces } from "../atoms/board.atom";
+import { boardAtom, BoardPieces, piecePositions } from "../atoms/board.atom";
 import { degToRad } from "three/src/math/MathUtils.js";
 
 interface BaseChessPieceProps {
   //piece: keyof GLTFResult["nodes"];
+  id: number;
   piece: BoardPieces;
   color: "white" | "black";
   position: [number, number];
@@ -39,11 +40,17 @@ const ADDER = BOARD_SIZE / BOARD_SPACES;
 
 const OFFSET = BOARD_SIZE / 2 - ADDER / 2;
 
-export function ChessPiece({ piece, color, position }: BaseChessPieceProps) {
+export function ChessPiece({
+  id,
+  piece,
+  color,
+  position,
+}: BaseChessPieceProps) {
   //const [position, setPosition] = useState(position);
   //const [isCaptured, setIsCaptured] = useState(false);
 
   const [{ pieces, selectedPiece }, setBoardData] = useAtom(boardAtom);
+  const [positions] = useAtom(piecePositions);
 
   const [hovered, setHovered] = useState(false);
   const [selected, setSelected] = useState(false);
@@ -58,8 +65,8 @@ export function ChessPiece({ piece, color, position }: BaseChessPieceProps) {
     }
 
     if (
-      selectedPiece.position[0] === position[0] &&
-      selectedPiece.position[1] === position[1]
+      positions[selectedPiece.id][0] === position[0] &&
+      positions[selectedPiece.id][1] === position[1]
     ) {
       setSelected(true);
     } else {
@@ -72,10 +79,8 @@ export function ChessPiece({ piece, color, position }: BaseChessPieceProps) {
   ): [number, number][] => {
     const isMoveLegal = (move: [number, number]) => {
       if (
-        pieces.filter(
-          (piece) =>
-            piece.position[0] === move[0] && piece.position[1] === move[1]
-        ).length
+        positions.filter((pos) => pos[0] === move[0] && pos[1] === move[1])
+          .length
       )
         return;
 
@@ -100,45 +105,41 @@ export function ChessPiece({ piece, color, position }: BaseChessPieceProps) {
     setBoardData((prev) => ({
       ...prev,
       selectedPiece: {
+        id,
         piece,
         color,
-        position,
       },
       possibleMoves: calculatePossibleMoves(position),
     }));
   };
 
+  //console.log("RENDER");
+
   return (
-    <motion.group
-      initial={{
-        x: OFFSET - ADDER * position[0],
-        z: OFFSET - ADDER * position[1],
-      }}
-      animate={{
-        x: OFFSET - ADDER * position[0],
-        z: OFFSET - ADDER * position[1],
-      }}
-      transition={{ ease: "easeOut", duration: 0.5 }}
-    >
+    <>
       <ChessPieceModel
         modelName={pieceToModelName[piece]}
         color={new Color().setHex(
           selected ? selectedColor : hovered ? hoveredColor : colorSet[color]
         )}
-        rotation={[
-          0,
+        x={OFFSET - ADDER * position[0]}
+        z={OFFSET - ADDER * position[1]}
+        rotateY={
           piece == BoardPieces.KNIGHT
             ? degToRad(color == "white" ? -90 : 90)
-            : 0,
-          0,
-        ]}
+            : 0
+        }
 
         //isCaptured={isCaptured}
         //onMove={(newPosition: [number, number]) => setPosition(newPosition)}
         //onCapture={() => setIsCaptured(true)}
       />
       <mesh
-        position={[0, 2, 0]}
+        position={[
+          OFFSET - ADDER * position[0],
+          2,
+          OFFSET - ADDER * position[1],
+        ]}
         onClick={(e) => {
           e.stopPropagation();
 
@@ -152,11 +153,11 @@ export function ChessPiece({ piece, color, position }: BaseChessPieceProps) {
           e.stopPropagation();
           setHovered(false);
         }}
-        visible={true}
+        visible={false}
       >
         <cylinderGeometry args={[ADDER / 3.5, ADDER / 3.5, 4, 16]} />
         <meshStandardMaterial wireframe={true} color="red" />
       </mesh>
-    </motion.group>
+    </>
   );
 }
